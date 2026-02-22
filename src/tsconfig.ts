@@ -1,16 +1,16 @@
-import { writeFile, existsSync, mkdirSync } from "fs";
+import { writeFile, mkdir } from "fs/promises";
 import { cwd } from "process";
-import type { TSConfig } from "./tsConfigType.ts";
+import { join } from "path";
+import type { TSConfig } from "./tsConfigType";
 
-export function tsc(config: TSConfig, inFolder = ""): void {
-    if (inFolder && !inFolder.endsWith("/")) inFolder += "/";
-    const path = cwd() + "/" + inFolder;
-    
-    if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true });
-    }
-    
-    writeFile(path + "tsconfig.json", JSON.stringify(config, null, 4), (err) => {
-        if (err) console.log(err);
-    });
+export async function tsc(
+    config: TSConfig,
+    space = 2,
+    inFolder = ""
+): Promise<void> {
+    const dirPath = join(cwd(), inFolder);
+    await mkdir(dirPath, { recursive: true });
+
+    const filePath = join(dirPath, "tsconfig.json");
+    await writeFile(filePath, JSON.stringify(config, null, space), "utf-8");
 }
